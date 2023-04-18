@@ -18,7 +18,7 @@ const Home: NextPage = () => {
     <>
       <Head>
         <title>EZ Todo</title>
-
+        <meta name="description" content="Reminders made easy" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-b from-[#000000] to-[#222222]">
