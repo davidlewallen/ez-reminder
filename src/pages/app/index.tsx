@@ -18,6 +18,7 @@ const App = () => {
         onSubmit={(event) => {
           event.preventDefault();
           addReminder({ text: value });
+          setValue("");
         }}
       >
         <input
@@ -26,6 +27,7 @@ const App = () => {
           onChange={(event: ChangeEvent<HTMLInputElement>) =>
             setValue(event.target.value)
           }
+          value={value}
         />
         <button type="submit">Add</button>
       </form>
