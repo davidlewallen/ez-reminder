@@ -40,4 +40,15 @@ export const remindersRouter = createTRPCRouter({
       },
     })
   ),
+  complete: protectedProcedure.input(z.string()).mutation(({ ctx, input }) =>
+    ctx.prisma.reminder.update({
+      where: {
+        id: input,
+      },
+      data: {
+        completed: true,
+        completedAt: new Date(),
+      },
+    })
+  ),
 });
