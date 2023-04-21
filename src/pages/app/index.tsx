@@ -6,7 +6,28 @@ const App = () => {
   const [value, setValue] = useState("");
   const { data: remindersData } = api.reminders.getAll.useQuery();
   const { mutate: addReminder } = api.reminders.add.useMutation({
-    onSuccess: () => utils.reminders.getAll.invalidate(),
+    async onMutate(newReminder) {
+      await utils.reminders.getAll.cancel();
+
+      const prevData = utils.reminders.getAll.getData();
+
+      utils.reminders.getAll.setData(undefined, (old) => ({
+        reminders: [
+          ...(old?.reminders ?? []),
+          {
+            id: Date.now().toString(),
+            text: newReminder.text,
+            completed: false,
+            createdAt: new Date(),
+            userId: "1",
+            completedAt: null,
+          },
+        ],
+      }));
+
+      return { prevData };
+    },
+    onSettled: () => utils.reminders.getAll.invalidate(),
   });
   const { mutate: completeReminder } = api.reminders.complete.useMutation({
     onSuccess: () => utils.reminders.getAll.invalidate(),
