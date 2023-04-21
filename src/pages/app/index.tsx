@@ -11,6 +11,9 @@ const App = () => {
   const { mutate: completeReminder } = api.reminders.complete.useMutation({
     onSuccess: () => utils.reminders.getAll.invalidate(),
   });
+  const { mutate: deleteReminder } = api.reminders.delete.useMutation({
+    onSuccess: () => utils.reminders.getAll.invalidate(),
+  });
 
   return (
     <main>
@@ -22,6 +25,7 @@ const App = () => {
         }}
       >
         <input
+          ref={(node) => node?.focus()}
           className="border border-solid border-black"
           type="text"
           onChange={(event: ChangeEvent<HTMLInputElement>) =>
@@ -39,19 +43,32 @@ const App = () => {
         .sort((a, b) => (a.completed ? 1 : b.completed ? -1 : 0))
 
         .map((reminder) => (
-          // TODO: Update from div to actual button element once implementing a ui libray
-          <div
-            key={reminder.id}
-            className={
-              reminder.completed
-                ? "cursor-default line-through"
-                : "cursor-pointer"
-            }
-            {...(reminder.completed
-              ? {}
-              : { onClick: () => completeReminder(reminder.id) })}
-          >
-            {reminder.text}
+          <div key={reminder.id}>
+            <span
+              className={`
+              ${
+                reminder.completed
+                  ? "cursor-default line-through"
+                  : "cursor-pointer"
+              } mr-2 p-1`}
+            >
+              {reminder.text}
+            </span>
+            {!reminder.completed && (
+              <button
+                className="mr-2 border border-solid border-black p-1"
+                onClick={() => completeReminder(reminder.id)}
+              >
+                Complete
+              </button>
+            )}
+
+            <button
+              className="border border-solid border-black p-1"
+              onClick={() => deleteReminder(reminder.id)}
+            >
+              Delete
+            </button>
           </div>
         ))}
     </main>
