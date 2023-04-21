@@ -51,4 +51,11 @@ export const remindersRouter = createTRPCRouter({
       },
     })
   ),
+  delete: protectedProcedure.input(z.string()).mutation(({ ctx, input }) =>
+    ctx.prisma.reminder.delete({
+      where: {
+        id: input,
+      },
+    })
+  ),
 });
