@@ -30,7 +30,29 @@ const App = () => {
     onSettled: () => utils.reminders.getAll.invalidate(),
   });
   const { mutate: completeReminder } = api.reminders.complete.useMutation({
-    onSuccess: () => utils.reminders.getAll.invalidate(),
+    async onMutate(id) {
+      await utils.reminders.getAll.cancel();
+
+      const prevData = utils.reminders.getAll.getData();
+
+      utils.reminders.getAll.setData(undefined, (old) => ({
+        reminders:
+          old?.reminders.map((reminder) => {
+            if (reminder.id === id) {
+              return {
+                ...reminder,
+                completed: true,
+                completedAt: new Date(),
+              };
+            }
+
+            return reminder;
+          }) ?? [],
+      }));
+
+      return { prevData };
+    },
+    onSettled: () => utils.reminders.getAll.invalidate(),
   });
   const { mutate: deleteReminder } = api.reminders.delete.useMutation({
     onSuccess: () => utils.reminders.getAll.invalidate(),
