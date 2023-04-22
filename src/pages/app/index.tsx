@@ -55,7 +55,19 @@ const App = () => {
     onSettled: () => utils.reminders.getAll.invalidate(),
   });
   const { mutate: deleteReminder } = api.reminders.delete.useMutation({
-    onSuccess: () => utils.reminders.getAll.invalidate(),
+    async onMutate(id) {
+      await utils.reminders.getAll.cancel();
+
+      const prevData = utils.reminders.getAll.getData();
+
+      utils.reminders.getAll.setData(undefined, (old) => ({
+        reminders:
+          old?.reminders.filter((reminder) => reminder.id !== id) ?? [],
+      }));
+
+      return { prevData };
+    },
+    onSettled: () => utils.reminders.getAll.invalidate(),
   });
 
   return (
