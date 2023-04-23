@@ -10,10 +10,9 @@ const Home: NextPage = () => {
 
   useEffect(() => {
     if (status === "authenticated") {
-      void router.push("/app");
+      void router.push("/dashboard");
     }
   }, [status, router]);
-
   return (
     <>
       <Head>
