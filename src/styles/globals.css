@@ -8,3 +8,19 @@ body,
   height: 100% !important;
   overflow: hidden !important;
 }
+
+body *::-webkit-scrollbar-thumb {
+  background: #a19f9d;
+  background: #edebe9;
+  border-radius: 10px;
+}
+body *::-webkit-scrollbar-track {
+  border-radius: 10px;
+}
+body *::-webkit-scrollbar-corner {
+  background-color: transparent;
+}
+body *::-webkit-scrollbar {
+  width: 8px;
+  border-radius: 10px;
+}

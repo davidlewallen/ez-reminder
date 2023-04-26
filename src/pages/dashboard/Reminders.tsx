@@ -13,17 +13,19 @@ export const Reminders = () => {
   const { data: reminders } = api.reminders.getAll.useQuery();
 
   return (
-    <Stack>
-      {reminders
-        ?.sort((a, b) =>
-          (a?.completedAt ?? 0) > (b?.completedAt ?? 0) ? -1 : 1
-        )
-        .sort((a, b) => (a.createdAt > b.createdAt ? -1 : 1))
-        .sort((a, b) => (a.completed ? 1 : b.completed ? -1 : 0))
-        .map((reminder) => (
-          <Reminder key={reminder.id} reminder={reminder} />
-        ))}
-    </Stack>
+    <div className="scroll -ml-4 -mr-4 h-full overflow-y-scroll ">
+      <Stack>
+        {reminders
+          ?.sort((a, b) =>
+            (a?.completedAt ?? 0) > (b?.completedAt ?? 0) ? -1 : 1
+          )
+          .sort((a, b) => (a.createdAt > b.createdAt ? -1 : 1))
+          .sort((a, b) => (a.completed ? 1 : b.completed ? -1 : 0))
+          .map((reminder) => (
+            <Reminder key={reminder.id} reminder={reminder} />
+          ))}
+      </Stack>
+    </div>
   );
 };
 
