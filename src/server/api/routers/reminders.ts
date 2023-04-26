@@ -30,16 +30,18 @@ export const remindersRouter = createTRPCRouter({
       },
     })
   ),
-  getAll: protectedProcedure.query(({ ctx }) =>
-    ctx.prisma.user.findFirst({
+  getAll: protectedProcedure.query(async ({ ctx }) => {
+    const reminders = await ctx.prisma.user.findFirst({
       where: {
         id: ctx.session.user.id,
       },
       select: {
         reminders: true,
       },
-    })
-  ),
+    });
+
+    return reminders?.reminders ?? [];
+  }),
   complete: protectedProcedure.input(z.string()).mutation(({ ctx, input }) =>
     ctx.prisma.reminder.update({
       where: {
