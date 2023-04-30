@@ -1,7 +1,7 @@
 import { type AppType } from "next/app";
 import { type Session } from "next-auth";
 import { SessionProvider } from "next-auth/react";
-import { ChakraProvider, Container } from "@chakra-ui/react";
+import { ChakraProvider } from "@chakra-ui/react";
 
 import { api } from "~/utils/api";
 
@@ -14,9 +14,7 @@ const MyApp: AppType<{ session: Session | null }> = ({
   return (
     <SessionProvider session={session}>
       <ChakraProvider>
-        <Container height="100%" overflow="hidden">
-          <Component {...pageProps} />
-        </Container>
+        <Component {...pageProps} />
       </ChakraProvider>
     </SessionProvider>
   );
