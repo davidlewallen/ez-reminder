@@ -109,7 +109,9 @@ export const Navbar = ({ children }: { children: ReactNode }) => {
         ) : null}
       </Box>
 
-      <Box p={4}>{children}</Box>
+      <Box px={4} height="100%">
+        {children}
+      </Box>
     </>
   );
 };
