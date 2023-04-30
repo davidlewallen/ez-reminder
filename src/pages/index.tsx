@@ -18,7 +18,8 @@ const Home: NextPage = () => {
       <Head>
         <title>EZ Todo</title>
         <meta name="description" content="Reminders made easy" />
-        <link rel="icon" href="/favicon.ico" />
+        {/* TODO: Need to figure out icons/logos */}
+        {/* <link rel="icon" href="" /> */}
       </Head>
       <main className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-b from-[#000000] to-[#222222]">
         <div className="container flex flex-col items-center justify-center gap-12 px-4 py-16 ">
