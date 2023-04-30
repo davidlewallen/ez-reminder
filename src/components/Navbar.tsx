@@ -11,13 +11,11 @@ import {
   MenuButton,
   MenuList,
   MenuItem,
-  // MenuDivider,
   useDisclosure,
   useColorModeValue,
   Stack,
 } from "@chakra-ui/react";
-import { HamburgerIcon, CloseIcon, AddIcon } from "@chakra-ui/icons";
-import { useSession } from "next-auth/react";
+import { HamburgerIcon, CloseIcon } from "@chakra-ui/icons";
 
 const Links = ["Dashboard"];
 
@@ -38,13 +36,10 @@ const NavLink = ({ children }: { children: ReactNode }) => (
 
 export const Navbar = ({ children }: { children: ReactNode }) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const { data } = useSession();
-
-  console.log(data);
 
   return (
-    <>
-      <Box bg={useColorModeValue("gray.100", "gray.900")} px={4}>
+    <Box height="100%" overflowX="hidden">
+      <Box bg={useColorModeValue("gray.50", "gray.900")} px={4}>
         <Flex h={16} alignItems={"center"} justifyContent={"space-between"}>
           <IconButton
             size={"md"}
@@ -66,15 +61,15 @@ export const Navbar = ({ children }: { children: ReactNode }) => {
             </HStack>
           </HStack>
           <Flex alignItems={"center"}>
-            <Button
-              variant={"solid"}
-              colorScheme={"teal"}
-              size={"sm"}
-              mr={4}
-              leftIcon={<AddIcon />}
-            >
-              Action
-            </Button>
+            {/* <Button */}
+            {/*   variant={"solid"} */}
+            {/*   colorScheme={"teal"} */}
+            {/*   size={"sm"} */}
+            {/*   mr={4} */}
+            {/*   leftIcon={<AddIcon />} */}
+            {/* > */}
+            {/*   Action */}
+            {/* </Button> */}
             <Menu>
               <MenuButton
                 as={Button}
@@ -83,12 +78,7 @@ export const Navbar = ({ children }: { children: ReactNode }) => {
                 cursor={"pointer"}
                 minW={0}
               >
-                <Avatar
-                  size={"sm"}
-                  src={
-                    "https://images.unsplash.com/photo-1493666438817-866a91353ca9?ixlib=rb-0.3.5&q=80&fm=jpg&crop=faces&fit=crop&h=200&w=200&s=b616b2c5b373a80ffc9636ba24f7a4a9"
-                  }
-                />
+                <Avatar size={"sm"} />
               </MenuButton>
               <MenuList>
                 <MenuItem>Sign out</MenuItem>
@@ -109,9 +99,7 @@ export const Navbar = ({ children }: { children: ReactNode }) => {
         ) : null}
       </Box>
 
-      <Box px={4} height="100%">
-        {children}
-      </Box>
-    </>
+      <Box height="100%">{children}</Box>
+    </Box>
   );
 };
