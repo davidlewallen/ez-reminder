@@ -33,7 +33,7 @@ const App = () => {
 
   return (
     <Layout>
-      <Card marginBottom={4} boxShadow="md">
+      <Card>
         <CardBody>
           <form
             onSubmit={(event) => {
