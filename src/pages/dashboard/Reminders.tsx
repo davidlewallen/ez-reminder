@@ -13,7 +13,7 @@ export const Reminders = () => {
   const { data: reminders } = api.reminders.getAll.useQuery();
 
   return (
-    <div className="scroll -ml-4 -mr-4 h-full overflow-y-scroll ">
+    <div className="scroll -mr-2 h-full overflow-y-scroll ">
       <Stack>
         {reminders
           ?.sort((a, b) =>

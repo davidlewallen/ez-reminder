@@ -3,6 +3,7 @@ import { Card, CardBody, Flex, IconButton, Input } from "@chakra-ui/react";
 import { AddIcon } from "@chakra-ui/icons";
 import { api } from "~/utils/api";
 import { Reminders } from "./Reminders";
+import { Layout } from "~/components/Layout";
 
 const App = () => {
   const utils = api.useContext();
@@ -31,8 +32,8 @@ const App = () => {
   });
 
   return (
-    <main className="h-full overflow-hidden">
-      <Card marginBottom={4} boxShadow="md">
+    <Layout>
+      <Card>
         <CardBody>
           <form
             onSubmit={(event) => {
@@ -63,7 +64,7 @@ const App = () => {
       </Card>
 
       <Reminders />
-    </main>
+    </Layout>
   );
 };
 
