@@ -55,6 +55,7 @@ model Reminder {
   user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   completed   Boolean   @default(false)
   completedAt DateTime?
+  remindAt    DateTime?
 }
 
 model User {
