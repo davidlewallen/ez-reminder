@@ -16,6 +16,7 @@ import {
   Stack,
 } from "@chakra-ui/react";
 import { HamburgerIcon, CloseIcon } from "@chakra-ui/icons";
+import { signOut, useSession } from "next-auth/react";
 
 const Links = ["Dashboard"];
 
@@ -81,8 +82,13 @@ export const Navbar = ({ children }: { children: ReactNode }) => {
                 <Avatar size={"sm"} />
               </MenuButton>
               <MenuList>
-                <MenuItem>Sign out</MenuItem>
-                {/* <MenuDivider /> */}
+                <MenuItem
+                  onClick={() =>
+                    void signOut({ callbackUrl: window.location.origin })
+                  }
+                >
+                  Sign out
+                </MenuItem>
               </MenuList>
             </Menu>
           </Flex>
