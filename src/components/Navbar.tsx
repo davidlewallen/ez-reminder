@@ -105,7 +105,7 @@ export const Navbar = ({ children }: { children: ReactNode }) => {
         ) : null}
       </Box>
 
-      <Box height="100%">{children}</Box>
+      <Box height="calc(100% - 64px)">{children}</Box>
     </Box>
   );
 };
