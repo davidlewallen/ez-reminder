@@ -9,8 +9,11 @@ export const remindersRouter = createTRPCRouter({
         text: z.string(),
       })
     )
-    .mutation(({ ctx, input }) =>
-      ctx.prisma.user.update({
+    .mutation(({ ctx, input }) => {
+      const currentTime = new Date();
+      const remindAtTime = new Date(currentTime.getTime() + 120 * 60 * 60);
+
+      return ctx.prisma.user.update({
         where: {
           id: ctx.session.user.id,
         },
@@ -18,11 +21,12 @@ export const remindersRouter = createTRPCRouter({
           reminders: {
             create: {
               text: input.text,
+              remindAt: remindAtTime,
             },
           },
         },
-      })
-    ),
+      });
+    }),
   getById: protectedProcedure.input(z.string()).query(({ ctx, input }) =>
     ctx.prisma.reminder.findFirst({
       where: {
@@ -50,6 +54,7 @@ export const remindersRouter = createTRPCRouter({
       data: {
         completed: true,
         completedAt: new Date(),
+        remindAt: null,
       },
     })
   ),
