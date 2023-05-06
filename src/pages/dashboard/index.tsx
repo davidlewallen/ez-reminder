@@ -4,8 +4,10 @@ import { AddIcon } from "@chakra-ui/icons";
 import { api } from "~/utils/api";
 import { Reminders } from "./Reminders";
 import { Layout } from "~/components/Layout";
+import { useProtectedRoute } from "~/hooks";
 
 const App = () => {
+  useProtectedRoute();
   const utils = api.useContext();
   const [value, setValue] = useState("");
   const { mutate: addReminder } = api.reminders.add.useMutation({
