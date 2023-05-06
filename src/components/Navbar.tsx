@@ -37,6 +37,7 @@ const NavLink = ({ children }: { children: ReactNode }) => (
 
 export const Navbar = ({ children }: { children: ReactNode }) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const { data } = useSession();
 
   return (
     <Box height="100%" overflowX="hidden">
@@ -79,7 +80,11 @@ export const Navbar = ({ children }: { children: ReactNode }) => {
                 cursor={"pointer"}
                 minW={0}
               >
-                <Avatar size={"sm"} />
+                <Avatar
+                  size={"sm"}
+                  src={data?.user.image ?? ""}
+                  crossOrigin="anonymous"
+                />
               </MenuButton>
               <MenuList>
                 <MenuItem
