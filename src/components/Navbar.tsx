@@ -16,6 +16,7 @@ import {
   Stack,
 } from "@chakra-ui/react";
 import { HamburgerIcon, CloseIcon } from "@chakra-ui/icons";
+import { signOut, useSession } from "next-auth/react";
 
 const Links = ["Dashboard"];
 
@@ -36,6 +37,7 @@ const NavLink = ({ children }: { children: ReactNode }) => (
 
 export const Navbar = ({ children }: { children: ReactNode }) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const { data } = useSession();
 
   return (
     <Box height="100%" overflowX="hidden">
@@ -78,11 +80,20 @@ export const Navbar = ({ children }: { children: ReactNode }) => {
                 cursor={"pointer"}
                 minW={0}
               >
-                <Avatar size={"sm"} />
+                <Avatar
+                  size={"sm"}
+                  src={data?.user.image ?? ""}
+                  crossOrigin="anonymous"
+                />
               </MenuButton>
               <MenuList>
-                <MenuItem>Sign out</MenuItem>
-                {/* <MenuDivider /> */}
+                <MenuItem
+                  onClick={() =>
+                    void signOut({ callbackUrl: window.location.origin })
+                  }
+                >
+                  Sign out
+                </MenuItem>
               </MenuList>
             </Menu>
           </Flex>
@@ -99,7 +110,7 @@ export const Navbar = ({ children }: { children: ReactNode }) => {
         ) : null}
       </Box>
 
-      <Box height="100%">{children}</Box>
+      <Box height="calc(100% - 64px)">{children}</Box>
     </Box>
   );
 };
