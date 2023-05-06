@@ -10,5 +10,5 @@ export const useProtectedRoute = () => {
     if (status === "unauthenticated") {
       void router.push("/");
     }
-  });
+  }, [router, status]);
 };
