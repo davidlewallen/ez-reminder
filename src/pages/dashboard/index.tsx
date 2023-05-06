@@ -35,7 +35,7 @@ const App = () => {
 
   return (
     <Layout>
-      <Card>
+      <Card marginBottom="2">
         <CardBody>
           <form
             onSubmit={(event) => {
