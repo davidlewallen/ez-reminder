@@ -9,7 +9,7 @@ import {
 } from "@chakra-ui/react";
 import { type RouterOutputs, api } from "~/utils/api";
 
-export const Reminders = () => {
+const Reminders = () => {
   const { data: reminders } = api.reminders.getAll.useQuery();
 
   return (
@@ -28,6 +28,8 @@ export const Reminders = () => {
     </div>
   );
 };
+
+export default Reminders;
 
 type Reminders = RouterOutputs["reminders"]["getAll"];
 type Reminder = Reminders[number];

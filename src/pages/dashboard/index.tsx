@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Card, CardBody, Flex, IconButton, Input } from "@chakra-ui/react";
 import { AddIcon } from "@chakra-ui/icons";
 import { api } from "~/utils/api";
-import { Reminders } from "./Reminders";
+import Reminders from "./Reminders";
 import { Layout } from "~/components/Layout";
 import { useProtectedRoute } from "~/hooks";
 
