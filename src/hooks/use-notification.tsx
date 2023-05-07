@@ -61,6 +61,7 @@ export const useNotification = () => {
     },
     [toast]
   );
+
   return {
     createNotification: useCallback(generateNotification, [
       handleComplete,
