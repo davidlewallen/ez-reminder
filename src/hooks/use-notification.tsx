@@ -1,5 +1,5 @@
 import { useToast, type ToastId } from "@chakra-ui/react";
-import { useCallback, useRef } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import { Notification } from "~/components/Notification";
 import { type RouterOutputs } from "~/utils/api";
 
@@ -54,6 +54,13 @@ export const useNotification = () => {
     }
   };
 
+  useEffect(
+    () => () => {
+      if (toastIdRef.current.length)
+        toastIdRef.current.forEach((reminderId) => toast.close(reminderId));
+    },
+    [toast]
+  );
   return {
     createNotification: useCallback(generateNotification, [
       handleComplete,
