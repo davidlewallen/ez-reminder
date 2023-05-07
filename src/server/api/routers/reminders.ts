@@ -13,6 +13,8 @@ export const remindersRouter = createTRPCRouter({
       const currentTime = new Date();
       const remindAtTime = new Date(currentTime.getTime() + 120 * 60 * 60);
 
+      remindAtTime.setSeconds(0);
+
       return ctx.prisma.user.update({
         where: {
           id: ctx.session.user.id,
