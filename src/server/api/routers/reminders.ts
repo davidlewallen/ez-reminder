@@ -11,7 +11,7 @@ export const remindersRouter = createTRPCRouter({
     )
     .mutation(({ ctx, input }) => {
       const currentTime = new Date();
-      const remindAtTime = new Date(currentTime.getTime() + 120 * 60 * 60);
+      const remindAtTime = new Date(currentTime.getTime() + 2 * 60 * 60 * 1000);
 
       remindAtTime.setSeconds(0);
 
