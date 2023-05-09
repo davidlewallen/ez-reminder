@@ -23,7 +23,6 @@ export const useNotification = () => {
 
   const handleSnooze = useCallback(
     (reminderId: string) => {
-      // Do something with snooze
       if (
         notificationIntervalRef.current.some(
           (notificationInterval) => notificationInterval.toastId === reminderId
@@ -38,7 +37,6 @@ export const useNotification = () => {
 
   const handleDismiss = useCallback(
     (reminderId: string) => {
-      // Do something with dismiss
       if (
         notificationIntervalRef.current.some(
           (notificationInterval) => notificationInterval.toastId === reminderId
@@ -53,7 +51,6 @@ export const useNotification = () => {
 
   const handleComplete = useCallback(
     (reminderId: string) => {
-      // Do something with complete
       if (
         notificationIntervalRef.current.some(
           (notificationInterval) => notificationInterval.toastId === reminderId
