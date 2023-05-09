@@ -89,4 +89,30 @@ export const remindersRouter = createTRPCRouter({
       },
     })
   ),
+  dismiss: protectedProcedure.input(z.string()).mutation(({ ctx, input }) =>
+    ctx.prisma.reminder.update({
+      where: {
+        id: input,
+      },
+      data: {
+        remindAt: null,
+      },
+    })
+  ),
+  snooze: protectedProcedure.input(z.string()).mutation(({ ctx, input }) => {
+    const currentTime = new Date();
+    const timeToAdd = 2 * 60 * 60 * 1000;
+    const remindAtTime = new Date(currentTime.getTime() + timeToAdd);
+
+    remindAtTime.setSeconds(0);
+
+    return ctx.prisma.reminder.update({
+      where: {
+        id: input,
+      },
+      data: {
+        remindAt: remindAtTime,
+      },
+    });
+  }),
 });
