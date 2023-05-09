@@ -1,4 +1,4 @@
-import { useToast, type ToastId } from "@chakra-ui/react";
+import { useToast } from "@chakra-ui/react";
 import { useCallback, useEffect, useRef } from "react";
 import { Notification } from "~/components/Notification";
 import { api, type RouterOutputs } from "~/utils/api";
@@ -9,7 +9,7 @@ type Reminder = Reminders[number];
 export const useNotification = () => {
   const toast = useToast();
   const notificationIntervalRef = useRef<
-    { toastId: ToastId; timeoutId: number }[]
+    { toastId: string; timeoutId: number }[]
   >([]);
   const { data: reminders } = api.reminders.getWithRemindAt.useQuery(
     undefined,
@@ -19,7 +19,7 @@ export const useNotification = () => {
   );
 
   const handleSnooze = useCallback(
-    (reminderId: ToastId) => {
+    (reminderId: string) => {
       // Do something with snooze
       if (
         notificationIntervalRef.current.some(
@@ -32,7 +32,7 @@ export const useNotification = () => {
   );
 
   const handleDismiss = useCallback(
-    (reminderId: ToastId) => {
+    (reminderId: string) => {
       // Do something with dismiss
       if (
         notificationIntervalRef.current.some(
@@ -45,7 +45,7 @@ export const useNotification = () => {
   );
 
   const handleComplete = useCallback(
-    (reminderId: ToastId) => {
+    (reminderId: string) => {
       // Do something with complete
       if (
         notificationIntervalRef.current.some(
