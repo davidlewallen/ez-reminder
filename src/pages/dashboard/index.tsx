@@ -25,6 +25,7 @@ const App = () => {
           createdAt: new Date(),
           userId: "1",
           completedAt: null,
+          remindAt: null,
         },
       ]);
 

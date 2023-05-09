@@ -11,7 +11,9 @@ export const remindersRouter = createTRPCRouter({
     )
     .mutation(({ ctx, input }) => {
       const currentTime = new Date();
-      const remindAtTime = new Date(currentTime.getTime() + 120 * 60 * 60);
+      const remindAtTime = new Date(currentTime.getTime() + 2 * 60 * 60 * 1000);
+
+      remindAtTime.setSeconds(0);
 
       return ctx.prisma.user.update({
         where: {
@@ -46,6 +48,28 @@ export const remindersRouter = createTRPCRouter({
 
     return reminders?.reminders ?? [];
   }),
+  getWithRemindAt: protectedProcedure.query(async ({ ctx }) => {
+    const currentTime = new Date();
+
+    currentTime.setSeconds(0);
+
+    const matchedReminders = await ctx.prisma.user.findFirst({
+      where: {
+        id: ctx.session.user.id,
+      },
+      select: {
+        reminders: {
+          where: {
+            remindAt: {
+              gte: new Date(),
+            },
+          },
+        },
+      },
+    });
+
+    return matchedReminders?.reminders ?? [];
+  }),
   complete: protectedProcedure.input(z.string()).mutation(({ ctx, input }) =>
     ctx.prisma.reminder.update({
       where: {
@@ -65,4 +89,30 @@ export const remindersRouter = createTRPCRouter({
       },
     })
   ),
+  dismiss: protectedProcedure.input(z.string()).mutation(({ ctx, input }) =>
+    ctx.prisma.reminder.update({
+      where: {
+        id: input,
+      },
+      data: {
+        remindAt: null,
+      },
+    })
+  ),
+  snooze: protectedProcedure.input(z.string()).mutation(({ ctx, input }) => {
+    const currentTime = new Date();
+    const timeToAdd = 2 * 60 * 60 * 1000;
+    const remindAtTime = new Date(currentTime.getTime() + timeToAdd);
+
+    remindAtTime.setSeconds(0);
+
+    return ctx.prisma.reminder.update({
+      where: {
+        id: input,
+      },
+      data: {
+        remindAt: remindAtTime,
+      },
+    });
+  }),
 });
