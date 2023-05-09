@@ -17,6 +17,7 @@ export const useNotification = () => {
       refetchInterval: 1000 * 60,
     }
   );
+  const { mutate: dismissReminder } = api.reminders.dismiss.useMutation();
   const { mutate: snoozeReminder } = api.reminders.snooze.useMutation();
 
   const handleSnooze = useCallback(
@@ -41,10 +42,12 @@ export const useNotification = () => {
         notificationIntervalRef.current.some(
           (notificationInterval) => notificationInterval.toastId === reminderId
         )
-      )
+      ) {
         toast.close(reminderId);
+        dismissReminder(reminderId);
+      }
     },
-    [toast]
+    [dismissReminder, toast]
   );
 
   const handleComplete = useCallback(
