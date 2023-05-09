@@ -1,19 +1,32 @@
 import { useToast, type ToastId } from "@chakra-ui/react";
 import { useCallback, useEffect, useRef } from "react";
 import { Notification } from "~/components/Notification";
-import { type RouterOutputs } from "~/utils/api";
+import { api, type RouterOutputs } from "~/utils/api";
 
 type Reminders = RouterOutputs["reminders"]["getAll"];
 type Reminder = Reminders[number];
 
 export const useNotification = () => {
+  const { data: reminders } = api.reminders.getWithRemindAt.useQuery(
+    undefined,
+    {
+      refetchInterval: 1000 * 60,
+    }
+  );
   const toast = useToast();
-  const toastIdRef = useRef<ToastId[]>([]);
+  const notificationIntervalRef = useRef<
+    { toastId: ToastId; timeoutId: number }[]
+  >([]);
 
   const handleSnooze = useCallback(
     (reminderId: ToastId) => {
       // Do something with snooze
-      if (toastIdRef.current.includes(reminderId)) toast.close(reminderId);
+      if (
+        notificationIntervalRef.current.some(
+          (notificationInterval) => notificationInterval.toastId === reminderId
+        )
+      )
+        toast.close(reminderId);
     },
     [toast]
   );
@@ -21,7 +34,12 @@ export const useNotification = () => {
   const handleDismiss = useCallback(
     (reminderId: ToastId) => {
       // Do something with dismiss
-      if (toastIdRef.current.includes(reminderId)) toast.close(reminderId);
+      if (
+        notificationIntervalRef.current.some(
+          (notificationInterval) => notificationInterval.toastId === reminderId
+        )
+      )
+        toast.close(reminderId);
     },
     [toast]
   );
@@ -29,45 +47,65 @@ export const useNotification = () => {
   const handleComplete = useCallback(
     (reminderId: ToastId) => {
       // Do something with complete
-      if (toastIdRef.current.includes(reminderId)) toast.close(reminderId);
+      if (
+        notificationIntervalRef.current.some(
+          (notificationInterval) => notificationInterval.toastId === reminderId
+        )
+      )
+        toast.close(reminderId);
     },
     [toast]
   );
 
-  const generateNotification = (reminder: Reminder) => {
-    if (!toast.isActive(reminder.id)) {
-      toastIdRef.current.push(
-        toast({
-          duration: null,
-          id: reminder.id,
-          position: "top-right",
-          render: () => (
-            <Notification
-              reminder={reminder}
-              handleComplete={handleComplete}
-              handleDismiss={handleDismiss}
-              handleSnooze={handleSnooze}
-            />
-          ),
-        })
+  const generateNotification = useCallback(
+    (reminder: Reminder) => {
+      if (
+        !reminder.remindAt ||
+        toast.isActive(reminder.id) ||
+        notificationIntervalRef.current.some(
+          (notificationInterval) => notificationInterval.toastId === reminder.id
+        )
+      )
+        return;
+
+      const currentTime = new Date();
+      const secondsUntilReminder = Math.floor(
+        reminder.remindAt.getTime() - currentTime.getTime()
       );
+
+      notificationIntervalRef.current.push({
+        toastId: reminder.id,
+        timeoutId: window.setTimeout(() => {
+          toast({
+            duration: null,
+            id: reminder.id,
+            position: "top-right",
+            render: () => (
+              <Notification
+                reminder={reminder}
+                handleComplete={handleComplete}
+                handleDismiss={handleDismiss}
+                handleSnooze={handleSnooze}
+              />
+            ),
+          });
+        }, secondsUntilReminder),
+      });
+    },
+    [handleComplete, handleDismiss, handleSnooze, toast]
+  );
+
+  useEffect(() => {
+    if (reminders?.length) {
+      reminders.forEach(generateNotification);
     }
-  };
+  }, [generateNotification, reminders]);
 
   useEffect(
-    () => () => {
-      if (toastIdRef.current.length)
-        toastIdRef.current.forEach((reminderId) => toast.close(reminderId));
-    },
-    [toast]
+    () => () =>
+      notificationIntervalRef.current.forEach((notificationIntervalRef) =>
+        clearTimeout(notificationIntervalRef.timeoutId)
+      ),
+    []
   );
-
-  return {
-    createNotification: useCallback(generateNotification, [
-      handleComplete,
-      handleDismiss,
-      handleSnooze,
-      toast,
-    ]),
-  };
 };
