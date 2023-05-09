@@ -7,16 +7,16 @@ type Reminders = RouterOutputs["reminders"]["getAll"];
 type Reminder = Reminders[number];
 
 export const useNotification = () => {
+  const toast = useToast();
+  const notificationIntervalRef = useRef<
+    { toastId: ToastId; timeoutId: number }[]
+  >([]);
   const { data: reminders } = api.reminders.getWithRemindAt.useQuery(
     undefined,
     {
       refetchInterval: 1000 * 60,
     }
   );
-  const toast = useToast();
-  const notificationIntervalRef = useRef<
-    { toastId: ToastId; timeoutId: number }[]
-  >([]);
 
   const handleSnooze = useCallback(
     (reminderId: ToastId) => {
