@@ -16,7 +16,8 @@ const Reminders = () => {
     <div className="scroll -mr-2 h-full overflow-y-scroll ">
       <Stack>
         {reminders
-          ?.sort((a, b) =>
+          ?.filter((reminder) => !reminder.completed)
+          .sort((a, b) =>
             (a?.completedAt ?? 0) > (b?.completedAt ?? 0) ? -1 : 1
           )
           .sort((a, b) => (a.createdAt > b.createdAt ? -1 : 1))
