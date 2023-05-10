@@ -80,9 +80,11 @@ export const useNotification = () => {
         return;
 
       const currentTime = new Date();
-      const secondsUntilReminder = Math.floor(
-        reminder.remindAt.getTime() - currentTime.getTime()
-      );
+      const isReminderInThePast =
+        reminder.remindAt.getTime() < currentTime.getTime();
+      const secondsUntilReminder = isReminderInThePast
+        ? 0
+        : Math.floor(reminder.remindAt.getTime() - currentTime.getTime());
 
       notificationIntervalRef.current.push({
         toastId: reminder.id,
