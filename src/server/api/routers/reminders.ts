@@ -1,3 +1,4 @@
+import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
@@ -12,6 +13,9 @@ export const remindersRouter = createTRPCRouter({
     .mutation(({ ctx, input }) => {
       const currentTime = new Date();
       const remindAtTime = new Date(currentTime.getTime() + 2 * 60 * 60 * 1000);
+      const nextRemindAtTime = new Date(
+        remindAtTime.getTime() + 2 * 60 * 60 * 1000
+      );
 
       remindAtTime.setSeconds(0);
 
@@ -24,6 +28,7 @@ export const remindersRouter = createTRPCRouter({
             create: {
               text: input.text,
               remindAt: remindAtTime,
+              nextRemindAt: nextRemindAtTime,
             },
           },
         },
@@ -61,7 +66,7 @@ export const remindersRouter = createTRPCRouter({
         reminders: {
           where: {
             remindAt: {
-              gte: new Date(),
+              not: null,
             },
           },
         },
@@ -79,6 +84,7 @@ export const remindersRouter = createTRPCRouter({
         completed: true,
         completedAt: new Date(),
         remindAt: null,
+        nextRemindAt: null,
       },
     })
   ),
@@ -96,23 +102,38 @@ export const remindersRouter = createTRPCRouter({
       },
       data: {
         remindAt: null,
+        nextRemindAt: null,
       },
     })
   ),
-  snooze: protectedProcedure.input(z.string()).mutation(({ ctx, input }) => {
-    const currentTime = new Date();
-    const timeToAdd = 2 * 60 * 60 * 1000;
-    const remindAtTime = new Date(currentTime.getTime() + timeToAdd);
+  snooze: protectedProcedure
+    .input(z.string())
+    .mutation(async ({ ctx, input }) => {
+      const timeToAdd = 2 * 60 * 60 * 1000;
+      const reminderToSnooze = await ctx.prisma.reminder.findFirst({
+        where: { id: input },
+      });
 
-    remindAtTime.setSeconds(0);
+      if (!reminderToSnooze) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Reminder not found",
+        });
+      }
 
-    return ctx.prisma.reminder.update({
-      where: {
-        id: input,
-      },
-      data: {
-        remindAt: remindAtTime,
-      },
-    });
-  }),
+      const nextRemindAtTime = new Date(
+        (reminderToSnooze.nextRemindAt?.getTime() ?? new Date().getTime()) +
+          timeToAdd
+      );
+
+      return ctx.prisma.reminder.update({
+        where: {
+          id: input,
+        },
+        data: {
+          remindAt: reminderToSnooze.nextRemindAt,
+          nextRemindAt: nextRemindAtTime,
+        },
+      });
+    }),
 });

@@ -3,11 +3,12 @@ import {
   ButtonGroup,
   Card,
   CardBody,
-  Checkbox,
   IconButton,
   Spacer,
   Stack,
 } from "@chakra-ui/react";
+import { useCompleteReminder } from "~/hooks/use-complete-reminder";
+import { useDeleteReminder } from "~/hooks/use-delete-reminder";
 import { type RouterOutputs, api } from "~/utils/api";
 
 const Reminders = () => {
@@ -37,45 +38,8 @@ type Reminders = RouterOutputs["reminders"]["getAll"];
 type Reminder = Reminders[number];
 
 export function Reminder({ reminder }: { reminder: Reminder }) {
-  const utils = api.useContext();
-  const { mutate: completeReminder } = api.reminders.complete.useMutation({
-    async onMutate(id) {
-      await utils.reminders.getAll.cancel();
-
-      const prevData = utils.reminders.getAll.getData();
-
-      utils.reminders.getAll.setData(undefined, (old) =>
-        (old ?? []).map((reminder) =>
-          reminder.id === id
-            ? { ...reminder, completed: !reminder.completed }
-            : reminder
-        )
-      );
-
-      return { prevData };
-    },
-    onError(error, variables, context) {
-      utils.reminders.getAll.setData(undefined, context?.prevData ?? []);
-    },
-    onSettled: () => utils.reminders.getAll.invalidate(),
-  });
-  const { mutate: deleteReminder } = api.reminders.delete.useMutation({
-    async onMutate(id) {
-      await utils.reminders.getAll.cancel();
-
-      const prevData = utils.reminders.getAll.getData();
-
-      utils.reminders.getAll.setData(undefined, (old) =>
-        (old ?? []).filter((reminder) => reminder.id !== id)
-      );
-
-      return { prevData };
-    },
-    onError(error, variables, context) {
-      utils.reminders.getAll.setData(undefined, context?.prevData ?? []);
-    },
-    onSettled: () => utils.reminders.getAll.invalidate(),
-  });
+  const { mutate: completeReminder } = useCompleteReminder();
+  const { mutate: deleteReminder } = useDeleteReminder();
 
   return (
     <Card>

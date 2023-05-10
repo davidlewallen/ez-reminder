@@ -2,6 +2,8 @@ import { useToast } from "@chakra-ui/react";
 import { useCallback, useEffect, useRef } from "react";
 import { Notification } from "~/components/Notification";
 import { api, type RouterOutputs } from "~/utils/api";
+import { useCompleteReminder } from "./use-complete-reminder";
+import { useDeleteReminder } from "./use-delete-reminder";
 
 type Reminders = RouterOutputs["reminders"]["getAll"];
 type Reminder = Reminders[number];
@@ -15,11 +17,44 @@ export const useNotification = () => {
     undefined,
     {
       refetchInterval: 1000 * 60,
+      select(data) {
+        return data.filter(
+          (reminder) => reminder.remindAt || !reminder.completed
+        );
+      },
     }
   );
-  const { mutate: completeReminder } = api.reminders.complete.useMutation();
-  const { mutate: dismissReminder } = api.reminders.dismiss.useMutation();
-  const { mutate: snoozeReminder } = api.reminders.snooze.useMutation();
+  const utils = api.useContext();
+  const { mutate: completeReminder } = useCompleteReminder();
+  const { mutate: dismissReminder } = useDeleteReminder();
+  const { mutate: snoozeReminder } = api.reminders.snooze.useMutation({
+    async onMutate(reminderId) {
+      await utils.reminders.getAll.cancel();
+
+      const prevData = utils.reminders.getAll.getData();
+
+      utils.reminders.getAll.setData(undefined, (old) =>
+        (old ?? []).map((reminder) => {
+          if (reminder.id === reminderId) {
+            return {
+              ...reminder,
+              remindAt: reminder.nextRemindAt,
+            };
+          }
+
+          return reminder;
+        })
+      );
+
+      return { prevData };
+    },
+    onError(error, variables, context) {
+      utils.reminders.getAll.setData(undefined, context?.prevData ?? []);
+    },
+    onSettled() {
+      void utils.reminders.getAll.invalidate();
+    },
+  });
 
   const handleSnooze = useCallback(
     (reminderId: string) => {
@@ -75,9 +110,11 @@ export const useNotification = () => {
         return;
 
       const currentTime = new Date();
-      const secondsUntilReminder = Math.floor(
-        reminder.remindAt.getTime() - currentTime.getTime()
-      );
+      const isReminderInThePast =
+        reminder.remindAt.getTime() < currentTime.getTime();
+      const secondsUntilReminder = isReminderInThePast
+        ? 0
+        : Math.floor(reminder.remindAt.getTime() - currentTime.getTime());
 
       notificationIntervalRef.current.push({
         toastId: reminder.id,
