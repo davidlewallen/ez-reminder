@@ -1,5 +1,6 @@
-import { DeleteIcon } from "@chakra-ui/icons";
+import { CheckIcon, DeleteIcon } from "@chakra-ui/icons";
 import {
+  ButtonGroup,
   Card,
   CardBody,
   Checkbox,
@@ -78,23 +79,25 @@ export function Reminder({ reminder }: { reminder: Reminder }) {
 
   return (
     <Card>
-      <CardBody
-        display="flex"
-        alignItems="center"
-        onChange={() => completeReminder(reminder.id)}
-      >
-        <Checkbox isChecked={reminder.completed} marginRight="4" />
-
+      <CardBody display="flex" alignItems="center">
         {reminder.text}
 
         <Spacer />
 
-        <IconButton
-          icon={<DeleteIcon />}
-          aria-label="delete reminder"
-          colorScheme="red"
-          onClick={() => deleteReminder(reminder.id)}
-        />
+        <ButtonGroup>
+          <IconButton
+            icon={<DeleteIcon />}
+            aria-label="delete reminder"
+            colorScheme="red"
+            onClick={() => deleteReminder(reminder.id)}
+          />
+          <IconButton
+            icon={<CheckIcon />}
+            aria-label="complete reminder"
+            colorScheme="green"
+            onClick={() => completeReminder(reminder.id)}
+          />
+        </ButtonGroup>
       </CardBody>
     </Card>
   );
