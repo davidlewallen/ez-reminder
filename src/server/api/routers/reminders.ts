@@ -61,7 +61,7 @@ export const remindersRouter = createTRPCRouter({
         reminders: {
           where: {
             remindAt: {
-              gte: new Date(),
+              not: null,
             },
           },
         },
