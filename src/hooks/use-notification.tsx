@@ -2,6 +2,8 @@ import { useToast } from "@chakra-ui/react";
 import { useCallback, useEffect, useRef } from "react";
 import { Notification } from "~/components/Notification";
 import { api, type RouterOutputs } from "~/utils/api";
+import { useCompleteReminder } from "./use-complete-reminder";
+import { useDeleteReminder } from "./use-delete-reminder";
 
 type Reminders = RouterOutputs["reminders"]["getAll"];
 type Reminder = Reminders[number];
@@ -22,9 +24,9 @@ export const useNotification = () => {
       },
     }
   );
-  const { mutate: completeReminder } = api.reminders.complete.useMutation();
-  const { mutate: dismissReminder } = api.reminders.dismiss.useMutation();
   const { mutate: snoozeReminder } = api.reminders.snooze.useMutation();
+  const { mutate: completeReminder } = useCompleteReminder();
+  const { mutate: dismissReminder } = useDeleteReminder();
 
   const handleSnooze = useCallback(
     (reminderId: string) => {
