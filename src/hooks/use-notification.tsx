@@ -15,6 +15,11 @@ export const useNotification = () => {
     undefined,
     {
       refetchInterval: 1000 * 60,
+      select(data) {
+        return data.filter(
+          (reminder) => reminder.remindAt || !reminder.completed
+        );
+      },
     }
   );
   const { mutate: completeReminder } = api.reminders.complete.useMutation();
