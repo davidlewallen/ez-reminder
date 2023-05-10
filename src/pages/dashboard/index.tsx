@@ -26,6 +26,7 @@ const App = () => {
           userId: "1",
           completedAt: null,
           remindAt: null,
+          nextRemindAt: null,
         },
       ]);
 
