@@ -41,7 +41,7 @@ export const Navbar = ({ children }: { children: ReactNode }) => {
 
   return (
     <Box height="100%" overflowX="hidden">
-      <Box bg={useColorModeValue("gray.50", "gray.900")} px={4}>
+      <Box bg={useColorModeValue("white", "gray.900")} px={4}>
         <Flex h={16} alignItems={"center"} justifyContent={"space-between"}>
           <IconButton
             size={"md"}
@@ -110,7 +110,13 @@ export const Navbar = ({ children }: { children: ReactNode }) => {
         ) : null}
       </Box>
 
-      <Box height="calc(100% - 64px)">{children}</Box>
+      <Box
+        height="calc(100% - 64px)"
+        bg={useColorModeValue("gray.100", "black")}
+        paddingTop="4"
+      >
+        {children}
+      </Box>
     </Box>
   );
 };
