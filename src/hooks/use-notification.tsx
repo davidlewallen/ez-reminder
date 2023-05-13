@@ -7,7 +7,7 @@ import { useCompleteReminder } from "./use-complete-reminder";
 type Reminders = RouterOutputs["reminders"]["getAll"];
 type Reminder = Reminders[number];
 
-export const useNotification = () => {
+export const useNotification = (disable = false) => {
   const toast = useToast();
   const notificationIntervalRef = useRef<
     { toastId: string; timeoutId: number }[]
@@ -21,6 +21,7 @@ export const useNotification = () => {
           (reminder) => reminder.remindAt || !reminder.completed
         );
       },
+      enabled: !disable,
     }
   );
   const { mutate: completeReminder } = useCompleteReminder();
