@@ -26,7 +26,6 @@ export const useNotification = () => {
   );
   const utils = api.useContext();
   const { mutate: completeReminder } = useCompleteReminder();
-  const { mutate: dismissReminder } = useDeleteReminder();
   const { mutate: snoozeReminder } = api.reminders.snooze.useMutation({
     async onMutate(reminderId) {
       await utils.reminders.getAll.cancel();
@@ -69,6 +68,7 @@ export const useNotification = () => {
     },
     [snoozeReminder, toast]
   );
+  const { mutate: dismissReminder } = useDismissReminder();
 
   const handleDismiss = useCallback(
     (reminderId: string) => {
@@ -152,3 +152,36 @@ export const useNotification = () => {
     []
   );
 };
+function useDismissReminder() {
+  const utils = api.useContext();
+
+  return api.reminders.dismiss.useMutation({
+    async onMutate(reminderId) {
+      await utils.reminders.getAll.cancel();
+
+      const prevData = utils.reminders.getAll.getData();
+
+      utils.reminders.getAll.setData(undefined, (old) =>
+        (old ?? []).map((reminder) => {
+          if (reminder.id === reminderId) {
+            return {
+              ...reminder,
+              remindAt: null,
+              nextRemindAt: null,
+            };
+          }
+
+          return reminder;
+        })
+      );
+
+      return { prevData };
+    },
+    onError(error, variables, context) {
+      utils.reminders.getAll.setData(undefined, context?.prevData ?? []);
+    },
+    onSettled() {
+      void utils.reminders.getAll.invalidate();
+    },
+  });
+}
