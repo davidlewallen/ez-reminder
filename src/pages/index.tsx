@@ -3,6 +3,7 @@ import Head from "next/head";
 import { signIn, useSession } from "next-auth/react";
 import { useEffect } from "react";
 import { useRouter } from "next/router";
+import Link from "next/link";
 
 const Home: NextPage = () => {
   const router = useRouter();
@@ -34,6 +35,11 @@ const Home: NextPage = () => {
               >
                 Sign in
               </button>
+              <Link href="/sign-up">
+                <button className="rounded-full bg-white/10 px-10 py-3 font-semibold text-white no-underline transition hover:bg-white/20">
+                  Sign up
+                </button>
+              </Link>
             </div>
           </div>
         </div>
