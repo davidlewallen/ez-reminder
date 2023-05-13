@@ -3,7 +3,6 @@ import { useCallback, useEffect, useRef } from "react";
 import { Notification } from "~/components/Notification";
 import { api, type RouterOutputs } from "~/utils/api";
 import { useCompleteReminder } from "./use-complete-reminder";
-import { useDeleteReminder } from "./use-delete-reminder";
 
 type Reminders = RouterOutputs["reminders"]["getAll"];
 type Reminder = Reminders[number];
@@ -24,78 +23,28 @@ export const useNotification = () => {
       },
     }
   );
-  const utils = api.useContext();
   const { mutate: completeReminder } = useCompleteReminder();
-  const { mutate: dismissReminder } = useDeleteReminder();
-  const { mutate: snoozeReminder } = api.reminders.snooze.useMutation({
-    async onMutate(reminderId) {
-      await utils.reminders.getAll.cancel();
+  const { mutate: dismissReminder } = useDismissReminder();
+  const { mutate: snoozeReminder } = useSnoozeReminder();
 
-      const prevData = utils.reminders.getAll.getData();
-
-      utils.reminders.getAll.setData(undefined, (old) =>
-        (old ?? []).map((reminder) => {
-          if (reminder.id === reminderId) {
-            return {
-              ...reminder,
-              remindAt: reminder.nextRemindAt,
-            };
-          }
-
-          return reminder;
-        })
-      );
-
-      return { prevData };
-    },
-    onError(error, variables, context) {
-      utils.reminders.getAll.setData(undefined, context?.prevData ?? []);
-    },
-    onSettled() {
-      void utils.reminders.getAll.invalidate();
-    },
-  });
-
-  const handleSnooze = useCallback(
-    (reminderId: string) => {
+  const handleAction = useCallback(
+    (
+      reminderId: string,
+      action:
+        | typeof completeReminder
+        | typeof dismissReminder
+        | typeof snoozeReminder
+    ) => {
       if (
         notificationIntervalRef.current.some(
           (notificationInterval) => notificationInterval.toastId === reminderId
         )
       ) {
         toast.close(reminderId);
-        snoozeReminder(reminderId);
+        action(reminderId);
       }
     },
-    [snoozeReminder, toast]
-  );
-
-  const handleDismiss = useCallback(
-    (reminderId: string) => {
-      if (
-        notificationIntervalRef.current.some(
-          (notificationInterval) => notificationInterval.toastId === reminderId
-        )
-      ) {
-        toast.close(reminderId);
-        dismissReminder(reminderId);
-      }
-    },
-    [dismissReminder, toast]
-  );
-
-  const handleComplete = useCallback(
-    (reminderId: string) => {
-      if (
-        notificationIntervalRef.current.some(
-          (notificationInterval) => notificationInterval.toastId === reminderId
-        )
-      ) {
-        toast.close(reminderId);
-        completeReminder(reminderId);
-      }
-    },
-    [completeReminder, toast]
+    [toast]
   );
 
   const generateNotification = useCallback(
@@ -126,16 +75,22 @@ export const useNotification = () => {
             render: () => (
               <Notification
                 reminder={reminder}
-                handleComplete={handleComplete}
-                handleDismiss={handleDismiss}
-                handleSnooze={handleSnooze}
+                handleComplete={(reminderId) =>
+                  handleAction(reminderId, completeReminder)
+                }
+                handleDismiss={(reminderId) =>
+                  handleAction(reminderId, dismissReminder)
+                }
+                handleSnooze={(reminderId) =>
+                  handleAction(reminderId, snoozeReminder)
+                }
               />
             ),
           });
         }, secondsUntilReminder),
       });
     },
-    [handleComplete, handleDismiss, handleSnooze, toast]
+    [completeReminder, dismissReminder, handleAction, snoozeReminder, toast]
   );
 
   useEffect(() => {
@@ -152,3 +107,70 @@ export const useNotification = () => {
     []
   );
 };
+
+function useSnoozeReminder() {
+  const utils = api.useContext();
+
+  return api.reminders.snooze.useMutation({
+    async onMutate(reminderId) {
+      await utils.reminders.getAll.cancel();
+
+      const prevData = utils.reminders.getAll.getData();
+
+      utils.reminders.getAll.setData(undefined, (old) =>
+        (old ?? []).map((reminder) => {
+          if (reminder.id === reminderId) {
+            return {
+              ...reminder,
+              remindAt: reminder.nextRemindAt,
+            };
+          }
+
+          return reminder;
+        })
+      );
+
+      return { prevData };
+    },
+    onError(error, variables, context) {
+      utils.reminders.getAll.setData(undefined, context?.prevData ?? []);
+    },
+    onSettled() {
+      void utils.reminders.getAll.invalidate();
+    },
+  });
+}
+
+function useDismissReminder() {
+  const utils = api.useContext();
+
+  return api.reminders.dismiss.useMutation({
+    async onMutate(reminderId) {
+      await utils.reminders.getAll.cancel();
+
+      const prevData = utils.reminders.getAll.getData();
+
+      utils.reminders.getAll.setData(undefined, (old) =>
+        (old ?? []).map((reminder) => {
+          if (reminder.id === reminderId) {
+            return {
+              ...reminder,
+              remindAt: null,
+              nextRemindAt: null,
+            };
+          }
+
+          return reminder;
+        })
+      );
+
+      return { prevData };
+    },
+    onError(error, variables, context) {
+      utils.reminders.getAll.setData(undefined, context?.prevData ?? []);
+    },
+    onSettled() {
+      void utils.reminders.getAll.invalidate();
+    },
+  });
+}
