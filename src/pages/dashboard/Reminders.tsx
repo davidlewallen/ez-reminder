@@ -1,11 +1,13 @@
 import { CheckIcon, DeleteIcon } from "@chakra-ui/icons";
 import {
+  Box,
   ButtonGroup,
   Card,
   CardBody,
   IconButton,
   Spacer,
   Stack,
+  Text,
 } from "@chakra-ui/react";
 import { useCompleteReminder } from "~/hooks/use-complete-reminder";
 import { useDeleteReminder } from "~/hooks/use-delete-reminder";
@@ -37,16 +39,67 @@ export default Reminders;
 type Reminders = RouterOutputs["reminders"]["getAll"];
 type Reminder = Reminders[number];
 
+type UnitOfTime = "minute" | "minutes" | "hour" | "hours" | "day" | "days";
+
+const msInSecond = 1000 / 1;
+
 export function Reminder({ reminder }: { reminder: Reminder }) {
   const { mutate: completeReminder } = useCompleteReminder();
   const { mutate: deleteReminder } = useDeleteReminder();
 
+  const genSnoozeCopy = () => {
+    let snoozeCopy = 0;
+    let timeUnit: UnitOfTime = "minute";
+
+    const currentTime = new Date();
+    const timeToReminderMs =
+      (reminder.remindAt?.getTime() ?? 0) - currentTime.getTime();
+    const minutesToReminder = Math.max(timeToReminderMs / msInSecond / 60, 0);
+    const hoursToReminder = minutesToReminder / 60;
+    const daysToReminder = hoursToReminder / 24;
+    const minutesToReminderRounded = Math.round(minutesToReminder);
+    const hoursToReminderRounded = Math.round(hoursToReminder);
+    const daysToReminderRounded = Math.round(daysToReminder);
+
+    if (daysToReminderRounded === 1) {
+      snoozeCopy = daysToReminderRounded;
+      timeUnit = "day";
+    } else if (daysToReminderRounded > 1) {
+      snoozeCopy = daysToReminderRounded;
+      timeUnit = "days";
+    } else if (hoursToReminderRounded === 1) {
+      snoozeCopy = hoursToReminderRounded;
+      timeUnit = "hour";
+    } else if (hoursToReminderRounded > 1) {
+      snoozeCopy = hoursToReminderRounded;
+      timeUnit = "hours";
+    } else if (minutesToReminderRounded === 1) {
+      snoozeCopy = minutesToReminderRounded;
+      timeUnit = "minute";
+    } else if (minutesToReminderRounded > 1) {
+      snoozeCopy = minutesToReminderRounded;
+      timeUnit = "minutes";
+    }
+
+    return `Snoozed for ${snoozeCopy} ${timeUnit}`;
+  };
+
   return (
     <Card>
-      <CardBody display="flex" alignItems="center">
-        {reminder.text}
+      <CardBody
+        display="flex"
+        alignItems="center"
+        justifyContent="space-between"
+      >
+        <Box display="flex" flexDirection="column">
+          <Text>{reminder.text}</Text>
 
-        <Spacer />
+          {reminder.remindAt ? (
+            <Text fontSize="xs">{genSnoozeCopy()}</Text>
+          ) : (
+            false
+          )}
+        </Box>
 
         <ButtonGroup>
           <IconButton
