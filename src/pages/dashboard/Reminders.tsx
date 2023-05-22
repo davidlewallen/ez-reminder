@@ -1,4 +1,4 @@
-import { CheckIcon, DeleteIcon, TimeIcon } from "@chakra-ui/icons";
+import { CheckIcon, TimeIcon } from "@chakra-ui/icons";
 import {
   Box,
   ButtonGroup,
@@ -43,28 +43,6 @@ type UnitOfTime = "minute" | "minutes" | "hour" | "hours" | "day" | "days";
 
 const msInSecond = 1000 / 1;
 
-function useDeleteReminder() {
-  const utils = api.useContext();
-
-  return api.reminders.delete.useMutation({
-    async onMutate(id) {
-      await utils.reminders.getAll.cancel();
-
-      const prevData = utils.reminders.getAll.getData();
-
-      utils.reminders.getAll.setData(undefined, (old) =>
-        (old ?? []).filter((reminder) => reminder.id !== id)
-      );
-
-      return { prevData };
-    },
-    onError(error, variables, context) {
-      utils.reminders.getAll.setData(undefined, context?.prevData ?? []);
-    },
-    onSettled: () => utils.reminders.getAll.invalidate(),
-  });
-}
-
 function useSnoozeReminder() {
   const utils = api.useContext();
 
@@ -93,7 +71,6 @@ function useSnoozeReminder() {
 
 export function Reminder({ reminder }: { reminder: Reminder }) {
   const { mutate: completeReminder } = useCompleteReminder();
-  const { mutate: deleteReminder } = useDeleteReminder();
   const { mutate: snoozeReminder } = useSnoozeReminder();
   const { isOpen, onToggle } = useDisclosure();
 
@@ -155,13 +132,6 @@ export function Reminder({ reminder }: { reminder: Reminder }) {
                 aria-label="snooze reminder"
                 colorScheme="blue"
                 onClick={() => snoozeReminder(reminder.id)}
-              />
-              <IconButton
-                size="sm"
-                icon={<DeleteIcon />}
-                aria-label="delete reminder"
-                colorScheme="red"
-                onClick={() => deleteReminder(reminder.id)}
               />
               <IconButton
                 size="sm"
