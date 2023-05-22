@@ -5,17 +5,17 @@ import {
   Avatar,
   HStack,
   Link,
-  IconButton,
+  // IconButton,
   Button,
   Menu,
   MenuButton,
   MenuList,
   MenuItem,
-  useDisclosure,
+  // useDisclosure,
   useColorModeValue,
-  Stack,
+  // Stack,
 } from "@chakra-ui/react";
-import { HamburgerIcon, CloseIcon } from "@chakra-ui/icons";
+// import { HamburgerIcon, CloseIcon } from "@chakra-ui/icons";
 import { signOut, useSession } from "next-auth/react";
 
 const Links = ["Dashboard"];
@@ -36,13 +36,14 @@ const NavLink = ({ children }: { children: ReactNode }) => (
 );
 
 export const Navbar = ({ children }: { children: ReactNode }) => {
-  const { isOpen, onOpen, onClose } = useDisclosure();
+  // const { isOpen, onOpen, onClose } = useDisclosure();
   const { data } = useSession();
 
   return (
     <Box height="100%" overflowX="hidden">
       <Box bg={useColorModeValue("white", "gray.900")} px={4}>
         <Flex h={16} alignItems={"center"} justifyContent={"space-between"}>
+          {/*
           <IconButton
             size={"md"}
             icon={isOpen ? <CloseIcon /> : <HamburgerIcon />}
@@ -50,6 +51,7 @@ export const Navbar = ({ children }: { children: ReactNode }) => {
             display={{ md: "none" }}
             onClick={isOpen ? onClose : onOpen}
           />
+          */}
           <HStack spacing={8} alignItems={"center"}>
             <Box>EZ Reminders</Box>
             <HStack
@@ -99,7 +101,7 @@ export const Navbar = ({ children }: { children: ReactNode }) => {
           </Flex>
         </Flex>
 
-        {isOpen ? (
+        {/* isOpen ? (
           <Box pb={4} display={{ md: "none" }}>
             <Stack as={"nav"} spacing={4}>
               {Links.map((link) => (
@@ -107,7 +109,7 @@ export const Navbar = ({ children }: { children: ReactNode }) => {
               ))}
             </Stack>
           </Box>
-        ) : null}
+        ) : null */}
       </Box>
 
       <Box
