@@ -11,7 +11,6 @@ import {
   useDisclosure,
 } from "@chakra-ui/react";
 import { useCompleteReminder } from "~/hooks/use-complete-reminder";
-import { useDeleteReminder } from "~/hooks/use-delete-reminder";
 import { type RouterOutputs, api } from "~/utils/api";
 
 const Reminders = () => {
@@ -43,6 +42,27 @@ type Reminder = Reminders[number];
 type UnitOfTime = "minute" | "minutes" | "hour" | "hours" | "day" | "days";
 
 const msInSecond = 1000 / 1;
+function useDeleteReminder() {
+  const utils = api.useContext();
+
+  return api.reminders.delete.useMutation({
+    async onMutate(id) {
+      await utils.reminders.getAll.cancel();
+
+      const prevData = utils.reminders.getAll.getData();
+
+      utils.reminders.getAll.setData(undefined, (old) =>
+        (old ?? []).filter((reminder) => reminder.id !== id)
+      );
+
+      return { prevData };
+    },
+    onError(error, variables, context) {
+      utils.reminders.getAll.setData(undefined, context?.prevData ?? []);
+    },
+    onSettled: () => utils.reminders.getAll.invalidate(),
+  });
+}
 
 export function Reminder({ reminder }: { reminder: Reminder }) {
   const { mutate: completeReminder } = useCompleteReminder();
