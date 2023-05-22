@@ -1,13 +1,14 @@
-import { CheckIcon, DeleteIcon } from "@chakra-ui/icons";
+import { CheckIcon, DeleteIcon, TimeIcon } from "@chakra-ui/icons";
 import {
   Box,
   ButtonGroup,
   Card,
   CardBody,
+  Collapse,
   IconButton,
-  Spacer,
   Stack,
   Text,
+  useDisclosure,
 } from "@chakra-ui/react";
 import { useCompleteReminder } from "~/hooks/use-complete-reminder";
 import { useDeleteReminder } from "~/hooks/use-delete-reminder";
@@ -46,6 +47,8 @@ const msInSecond = 1000 / 1;
 export function Reminder({ reminder }: { reminder: Reminder }) {
   const { mutate: completeReminder } = useCompleteReminder();
   const { mutate: deleteReminder } = useDeleteReminder();
+  const { mutate: snoozeReminder } = api.reminders.snooze.useMutation();
+  const { isOpen, onToggle } = useDisclosure();
 
   const genSnoozeCopy = () => {
     let snoozeCopy = 0;
@@ -86,11 +89,7 @@ export function Reminder({ reminder }: { reminder: Reminder }) {
 
   return (
     <Card>
-      <CardBody
-        display="flex"
-        alignItems="center"
-        justifyContent="space-between"
-      >
+      <CardBody display="flex" flexDirection="column" onClick={onToggle}>
         <Box display="flex" flexDirection="column">
           <Text>{reminder.text}</Text>
 
@@ -100,21 +99,33 @@ export function Reminder({ reminder }: { reminder: Reminder }) {
             false
           )}
         </Box>
-
-        <ButtonGroup>
-          <IconButton
-            icon={<DeleteIcon />}
-            aria-label="delete reminder"
-            colorScheme="red"
-            onClick={() => deleteReminder(reminder.id)}
-          />
-          <IconButton
-            icon={<CheckIcon />}
-            aria-label="complete reminder"
-            colorScheme="green"
-            onClick={() => completeReminder(reminder.id)}
-          />
-        </ButtonGroup>
+        <Collapse in={isOpen}>
+          <Box display="flex" justifyContent="flex-end">
+            <ButtonGroup>
+              <IconButton
+                size="sm"
+                icon={<TimeIcon />}
+                aria-label="snooze reminder"
+                colorScheme="blue"
+                onClick={() => snoozeReminder(reminder.id)}
+              />
+              <IconButton
+                size="sm"
+                icon={<DeleteIcon />}
+                aria-label="delete reminder"
+                colorScheme="red"
+                onClick={() => deleteReminder(reminder.id)}
+              />
+              <IconButton
+                size="sm"
+                icon={<CheckIcon />}
+                aria-label="complete reminder"
+                colorScheme="green"
+                onClick={() => completeReminder(reminder.id)}
+              />
+            </ButtonGroup>
+          </Box>
+        </Collapse>
       </CardBody>
     </Card>
   );
