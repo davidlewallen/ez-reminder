@@ -42,6 +42,7 @@ type Reminder = Reminders[number];
 type UnitOfTime = "minute" | "minutes" | "hour" | "hours" | "day" | "days";
 
 const msInSecond = 1000 / 1;
+
 function useDeleteReminder() {
   const utils = api.useContext();
 
@@ -64,10 +65,36 @@ function useDeleteReminder() {
   });
 }
 
+function useSnoozeReminder() {
+  const utils = api.useContext();
+
+  return api.reminders.snooze.useMutation({
+    async onMutate(id) {
+      await utils.reminders.getAll.cancel();
+
+      const prevData = utils.reminders.getAll.getData();
+
+      utils.reminders.getAll.setData(undefined, (old) =>
+        (old ?? []).map((reminder) =>
+          reminder.id === id
+            ? { ...reminder, remindAt: reminder.nextRemindAt }
+            : reminder
+        )
+      );
+
+      return { prevData };
+    },
+    onError(error, variables, context) {
+      utils.reminders.getAll.setData(undefined, context?.prevData ?? []);
+    },
+    onSettled: () => utils.reminders.getAll.invalidate(),
+  });
+}
+
 export function Reminder({ reminder }: { reminder: Reminder }) {
   const { mutate: completeReminder } = useCompleteReminder();
   const { mutate: deleteReminder } = useDeleteReminder();
-  const { mutate: snoozeReminder } = api.reminders.snooze.useMutation();
+  const { mutate: snoozeReminder } = useSnoozeReminder();
   const { isOpen, onToggle } = useDisclosure();
 
   const genSnoozeCopy = () => {
@@ -109,8 +136,8 @@ export function Reminder({ reminder }: { reminder: Reminder }) {
 
   return (
     <Card>
-      <CardBody display="flex" flexDirection="column" onClick={onToggle}>
-        <Box display="flex" flexDirection="column">
+      <CardBody display="flex" flexDirection="column">
+        <Box display="flex" flexDirection="column" onClick={onToggle}>
           <Text>{reminder.text}</Text>
 
           {reminder.remindAt ? (
