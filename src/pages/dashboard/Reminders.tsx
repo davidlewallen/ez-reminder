@@ -1,4 +1,4 @@
-import { CheckIcon, DeleteIcon, TimeIcon } from "@chakra-ui/icons";
+import { CheckIcon, TimeIcon } from "@chakra-ui/icons";
 import {
   Box,
   ButtonGroup,
@@ -11,7 +11,6 @@ import {
   useDisclosure,
 } from "@chakra-ui/react";
 import { useCompleteReminder } from "~/hooks/use-complete-reminder";
-import { useDeleteReminder } from "~/hooks/use-delete-reminder";
 import { type RouterOutputs, api } from "~/utils/api";
 
 const Reminders = () => {
@@ -44,10 +43,35 @@ type UnitOfTime = "minute" | "minutes" | "hour" | "hours" | "day" | "days";
 
 const msInSecond = 1000 / 1;
 
+function useSnoozeReminder() {
+  const utils = api.useContext();
+
+  return api.reminders.snooze.useMutation({
+    async onMutate(id) {
+      await utils.reminders.getAll.cancel();
+
+      const prevData = utils.reminders.getAll.getData();
+
+      utils.reminders.getAll.setData(undefined, (old) =>
+        (old ?? []).map((reminder) =>
+          reminder.id === id
+            ? { ...reminder, remindAt: reminder.nextRemindAt }
+            : reminder
+        )
+      );
+
+      return { prevData };
+    },
+    onError(error, variables, context) {
+      utils.reminders.getAll.setData(undefined, context?.prevData ?? []);
+    },
+    onSettled: () => utils.reminders.getAll.invalidate(),
+  });
+}
+
 export function Reminder({ reminder }: { reminder: Reminder }) {
   const { mutate: completeReminder } = useCompleteReminder();
-  const { mutate: deleteReminder } = useDeleteReminder();
-  const { mutate: snoozeReminder } = api.reminders.snooze.useMutation();
+  const { mutate: snoozeReminder } = useSnoozeReminder();
   const { isOpen, onToggle } = useDisclosure();
 
   const genSnoozeCopy = () => {
@@ -89,8 +113,8 @@ export function Reminder({ reminder }: { reminder: Reminder }) {
 
   return (
     <Card>
-      <CardBody display="flex" flexDirection="column" onClick={onToggle}>
-        <Box display="flex" flexDirection="column">
+      <CardBody display="flex" flexDirection="column">
+        <Box display="flex" flexDirection="column" onClick={onToggle}>
           <Text>{reminder.text}</Text>
 
           {reminder.remindAt ? (
@@ -108,13 +132,6 @@ export function Reminder({ reminder }: { reminder: Reminder }) {
                 aria-label="snooze reminder"
                 colorScheme="blue"
                 onClick={() => snoozeReminder(reminder.id)}
-              />
-              <IconButton
-                size="sm"
-                icon={<DeleteIcon />}
-                aria-label="delete reminder"
-                colorScheme="red"
-                onClick={() => deleteReminder(reminder.id)}
               />
               <IconButton
                 size="sm"
